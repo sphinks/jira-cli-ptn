@@ -3,21 +3,52 @@ Created on 08.06.2011
 
 @author: sphinks
 '''
-import argparse
+import argparse, ProjectAction, SimpleCommand 
 
 class Command:
     '''
     Represents command of cli
     '''
+    
     parser = argparse.ArgumentParser()
-    issue_command = parser.add_argument('--issue', help='Issue command that affords to get/set fields of issue')
-    login_command = parser.add_argument('--login', help='Login')
-    password_command = parser.add_argument('--password', help='Password')
-    projects_command = parser.add_argument('--projects', help='Command to show list of projects', action='store_true')
-    commands = {"issue":issue_command, "login":login_command, "projects":projects_command, "password":password_command}
+    
+    parser.add_argument('-l', '--login', help='Login', required=True)
+    parser.add_argument('--password', help='Password', required=False)
+    
+    subparser = parser.add_subparsers()
+    
+    
+    parser_issue = subparser.add_parser('issue', help='Working with issue')
+    parser_issue.add_argument('issue_name', help='Getting info about particular issue')
+    
+    projects_sparser = subparser.add_parser('projects', help='Working with project')
+    projects_sparser.add_argument('--pname', help='Getting info about particular project', required=False)
+    projects_sparser.add_argument('-a', '--all', help='Getting info about all projects', required=False, action='store_true')
+    #all_projects = projects_sparser.add_argument('-a','-all_projects', help='Show all_projects available projects', action='store_true')
+    
+    #projects_command = parser.add_argument('-p','--projects', help='Command to show list of projects', action=ProjectAction.ProjectAction, nargs=0)
+    #issue_command = parser.add_argument('-i', '--issue', help='Issue command that affords to get/set fields of issue')
+    
+    issue_name = SimpleCommand.SimpleCommand("issue_name")
+    login = SimpleCommand.SimpleCommand("login")
+    password = SimpleCommand.SimpleCommand("password")
+    all_projects = SimpleCommand.SimpleCommand("all")
+    project_name = SimpleCommand.SimpleCommand("pname")
+    
+    commands = {
+                issue_name.get_name(): issue_name,
+                login.get_name(): login,
+                password.get_name(): password,
+                all_projects.get_name(): all_projects,
+                project_name.get_name(): project_name
+                }
+    actions = {
+               all_projects.get_name():ProjectAction.ProjectAction(),
+               project_name.get_name():ProjectAction.ProjectAction()
+               }
 
     def __init__(self):
         '''
         Constructor
-        '''        
+        '''      
         
