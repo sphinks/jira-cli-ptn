@@ -101,3 +101,18 @@ class JiraClient:
             for field_object in project:
                 print "Field %s = %s" % (field_object, project[field_object])
                 
+    
+    def getUserInfo(self, user_name):
+        '''
+        Method for getting particular projects        
+        '''
+        resource_name = "user"
+        if (user_name):
+            complete_url = "%s/rest/api/latest/%s?username=%s" % (self.base_url, resource_name, user_name)
+            resource = Resource(complete_url, pool_instance=self.pool, filters=[self.auth])
+       
+            user = self.__make_request(resource)
+            #print user
+            #print "Project key: %s" % user['key']
+            for field_object in user:
+                print "Field %s = %s" % (field_object, user[field_object])            
