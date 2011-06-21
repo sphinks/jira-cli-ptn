@@ -3,7 +3,7 @@ Created on 08.06.2011
 
 @author: sphinks
 '''
-import argparse, ProjectAction, SimpleCommand 
+import argparse, ProjectAction, SimpleCommand, IssueAction 
 
 class Command:
     '''
@@ -44,7 +44,8 @@ class Command:
                 }
     actions = {
                all_projects.get_name():ProjectAction.ProjectAction(),
-               project_name.get_name():ProjectAction.ProjectAction()
+               project_name.get_name():ProjectAction.ProjectAction(),
+               issue_name.get_name():IssueAction.IssueAction()
                }
 
     def __init__(self):

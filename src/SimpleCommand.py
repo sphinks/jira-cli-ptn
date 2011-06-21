@@ -8,8 +8,6 @@ class SimpleCommand:
     '''
     Represents just simple command as objects with string name of command
     '''
-
-
     def __init__(self, name):
         '''
         Constructor

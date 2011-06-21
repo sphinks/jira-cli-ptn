@@ -11,7 +11,6 @@ class JiraClient:
     Class that represents client logic for JIRA
     '''
 
-
     def __init__(self, base_url, login, password):
         '''
         Constructor
@@ -27,14 +26,10 @@ class JiraClient:
         # This sends the user and password with the request.
         self.auth = BasicAuth(login, password)
         
-    def getIssue(self, issue_name, field_name=None):
+    def __make_request(self, resource):
         '''
-        Method for getting project fields
+        private method for making http request to jira api
         '''
-        resource_name = "project"
-        complete_url = "%s/rest/api/latest/%s/%s" % (self.base_url, resource_name, issue_name)
-        resource = Resource(complete_url, pool_instance=self.pool, filters=[self.auth])
-       
         try:
             response = resource.get(headers = {'Content-Type' : 'application/json'})
         except Exception,ex:
@@ -48,11 +43,22 @@ class JiraClient:
             return
         
         # Convert the text in the reply into a Python dictionary
-        issue = json.loads(response.body_string())
+        result = json.loads(response.body_string())
         
         # Pretty-print the JSON
         if self.verbose:
-            print json.dumps(issue, sort_keys=True, indent=4)
+            print json.dumps(result, sort_keys=True, indent=4)
+        return result
+    
+    def getIssue(self, issue_name, field_name=None):
+        '''
+        Method for getting project fields
+        '''
+        resource_name = "issue"
+        complete_url = "%s/rest/api/latest/%s/%s" % (self.base_url, resource_name, issue_name)
+        resource = Resource(complete_url, pool_instance=self.pool, filters=[self.auth])
+       
+        issue = self.__make_request(resource)
         
         # The properties of the project include:
         # self, html, key, transitions, expand, fields
@@ -75,26 +81,8 @@ class JiraClient:
         complete_url = "%s/rest/api/latest/%s" % (self.base_url, resource_name)
         resource = Resource(complete_url, pool_instance=self.pool, filters=[self.auth])
        
-        try:
-            response = resource.get(headers = {'Content-Type' : 'application/json'})
-        except Exception,ex:
-            # ex.msg is a string that looks like a dictionary
-            print "EXCEPTION: %s " % ex.msg
-            return
-        
-        # Most successful responses have an HTTP 200 status
-        if response.status_int != 200:
-            print "ERROR: status %s" % response.status_int
-            return
-        
-        # Convert the text in the reply into a Python dictionary
-        projects = json.loads(response.body_string())
-        
-        # Pretty-print the JSON
-        if self.verbose:
-            print json.dumps(projects, sort_keys=True, indent=4)
-        
-        
+        projects = self.__make_request(resource)
+                
         for project_object in projects:
             print "Project %s = %s" % (project_object['name'], project_object['key'])
             
@@ -107,26 +95,9 @@ class JiraClient:
             complete_url = "%s/rest/api/latest/%s/%s" % (self.base_url, resource_name, project_name)
             resource = Resource(complete_url, pool_instance=self.pool, filters=[self.auth])
        
-            try:
-                response = resource.get(headers = {'Content-Type' : 'application/json'})
-            except Exception,ex:
-                # ex.msg is a string that looks like a dictionary
-                print "EXCEPTION: %s " % ex.msg
-                return
-            
-            # Most successful responses have an HTTP 200 status
-            if response.status_int != 200:
-                print "ERROR: status %s" % response.status_int
-                return
-            
-            # Convert the text in the reply into a Python dictionary
-            project = json.loads(response.body_string())
-            
-            # Pretty-print the JSON
-            if self.verbose:
-                print json.dumps(project, sort_keys=True, indent=4)
-            
+            project = self.__make_request(resource)
             
             print "Project key: %s" % project['key']
             for field_object in project:
                 print "Field %s = %s" % (field_object, project[field_object])
+                
