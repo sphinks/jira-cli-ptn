@@ -5,6 +5,7 @@ Created on 14.06.2011
 '''
 import simplejson as json
 from restkit import Resource, SimplePool, BasicAuth, request
+import Command
 
 class JiraClient:
     '''
@@ -50,28 +51,41 @@ class JiraClient:
             print json.dumps(result, sort_keys=True, indent=4)
         return result
     
-    def getIssue(self, issue_name, field_name=None):
+    def __output_all_fields(self, fields):
+        '''Common function to output fields in response from server'''
+        '''for field_name in fields:
+            field_object = fields[field_name]
+            print "Field %s = %s" % (field_name, field_object['type'])
+            # The type of the value of a field depends on the type of the field
+            if field_name in ["summary"]:
+                print "  Value = %s" % field_object['value']'''
+        if fields != None:
+            for field_name in fields:
+                print "Field %s = %s" % (field_name, fields[field_name])
+    
+    def getIssue(self, issue_name, f_name=None):
         '''
-        Method for getting project fields
+        Method for getting issue fields
         '''
         resource_name = "issue"
-        complete_url = "%s/rest/api/latest/%s/%s" % (self.base_url, resource_name, issue_name)
+        if f_name != None:
+            complete_url = "%s/rest/api/latest/%s/%s/%s" % (self.base_url, resource_name, issue_name, f_name)
+        else:
+            complete_url = "%s/rest/api/latest/%s/%s" % (self.base_url, resource_name, issue_name)
         resource = Resource(complete_url, pool_instance=self.pool, filters=[self.auth])
        
         issue = self.__make_request(resource)
         
         # The properties of the project include:
         # self, html, key, transitions, expand, fields
+        print "Issue key: %s" % issue_name
         
-        print "Issue key: %s" % issue['key']
-        
-        fields = issue['fields']
-        for field_name in fields:
-            field_object = fields[field_name]
-            print "Field %s = %s" % (field_name, field_object['type'])
-            # The type of the value of a field depends on the type of the field
-            if field_name in ["summary"]:
-                print "  Value = %s" % field_object['value']
+        if f_name == None:
+            self.__output_all_fields(issue['fields'])
+        else:
+            if f_name == Command.Command.issue_watchers.get_name():
+                self.__output_all_fields(issue)
+                    
                 
     def getProjects(self):
         '''
@@ -86,7 +100,7 @@ class JiraClient:
         for project_object in projects:
             print "Project %s = %s" % (project_object['name'], project_object['key'])
             
-    def getProject(self, project_name):
+    def getProject(self, project_name, f_name = None):
         '''
         Method for getting particular projects        
         '''
@@ -97,14 +111,15 @@ class JiraClient:
        
             project = self.__make_request(resource)
             
-            print "Project key: %s" % project['key']
+            '''print "Project key: %s" % project['key']
             for field_object in project:
-                print "Field %s = %s" % (field_object, project[field_object])
+                print "Field %s = %s" % (field_object, project[field_object])'''
+            self.__output_all_fields(project)
                 
     
     def getUserInfo(self, user_name):
         '''
-        Method for getting particular projects        
+        Method for getting particular user        
         '''
         resource_name = "user"
         if (user_name):
@@ -114,5 +129,6 @@ class JiraClient:
             user = self.__make_request(resource)
             #print user
             #print "Project key: %s" % user['key']
-            for field_object in user:
-                print "Field %s = %s" % (field_object, user[field_object])            
+            '''for field_object in user:
+                print "Field %s = %s" % (field_object, user[field_object])'''
+            self.__output_all_fields(user)
