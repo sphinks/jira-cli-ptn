@@ -1,6 +1,5 @@
 import Command, JiraClient, ConfigFile
 
-
        
 
 #args = Command.Command.parser.parse_args(['--issue','TST-1', '-h'])
@@ -12,8 +11,10 @@ args = Command.Command.parser.parse_args('issue TST-1 -w'.split())
 print args
 print '---------------------------------------'
 
+
 auth = {"login":"",
         "password":""}
+
 config = ConfigFile.ConfigFile()
 if args.login == None and args.password == None:
     print "No login and password. Looking for it in config file..."
@@ -24,11 +25,25 @@ if args.login == None and args.password == None:
         args.password = auth['password']
     else:
         print "Auth info cann`t be found."
+        args.login = raw_input("Enter your login: ")
+        args.password = raw_input("Enter your password: ")
+        print "%s %s" % ("Login:", args.login)
+        print "%s %s" % ("Password:", args.password) 
+        if args.auth:
+            print "Set option --auth. Saving login and password to config file. Now you can skip entering login and password."
+            config.writeLoginPassword(args.login, args.password)
 else:
     if args.login != None and args.password != None:
         if args.auth:
-            print "Set --auth. Save login and password to config file. Now you can skip entering login and password."
+            print "Set option --auth. Saving login and password to config file. Now you can skip entering login and password."
             config.writeLoginPassword(args.login, args.password)
+    else:
+        if args.login != None:
+            args.password = raw_input("Enter your password: ")
+            if args.auth:
+                print "Set option --auth. Saving login and password to config file. Now you can skip entering login and password."
+                config.writeLoginPassword(args.login, args.password)
+            
 
 
 for cmd in Command.Command.actions:
