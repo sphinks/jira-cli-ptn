@@ -1,4 +1,4 @@
-import Command, JiraClient, ConfigFile
+import Command, JiraClient, ConfigFile, StdInOutWrapper
 
        
 
@@ -17,31 +17,29 @@ auth = {"login":"",
 
 config = ConfigFile.ConfigFile()
 if args.login == None and args.password == None:
-    print "No login and password. Looking for it in config file..."
+    StdInOutWrapper.StdInOutWrapper.output("> No login and password specified. Looking for it in config file...")
     auth = config.readLoginPassword()
     if auth['login'] != "":
-        print "Done."
+        StdInOutWrapper.StdInOutWrapper.output("> Success.")
         args.login = auth['login']
         args.password = auth['password']
     else:
-        print "Auth info cann`t be found."
-        args.login = raw_input("Enter your login: ")
-        args.password = raw_input("Enter your password: ")
-        print "%s %s" % ("Login:", args.login)
-        print "%s %s" % ("Password:", args.password) 
+        StdInOutWrapper.StdInOutWrapper.output("> Auth info cann`t be found.")
+        args.login = StdInOutWrapper.StdInOutWrapper.getFromInput("> Enter your login: ")
+        args.password = StdInOutWrapper.StdInOutWrapper.getFromInput("> Enter your password: ")
         if args.auth:
-            print "Set option --auth. Saving login and password to config file. Now you can skip entering login and password."
+            StdInOutWrapper.StdInOutWrapper.output("> Set option --auth. Saving login and password to config file. Now you can skip entering login and password.")
             config.writeLoginPassword(args.login, args.password)
 else:
     if args.login != None and args.password != None:
         if args.auth:
-            print "Set option --auth. Saving login and password to config file. Now you can skip entering login and password."
+            StdInOutWrapper.StdInOutWrapper.output("> Set option --auth. Saving login and password to config file. Now you can skip entering login and password.")
             config.writeLoginPassword(args.login, args.password)
     else:
         if args.login != None:
-            args.password = raw_input("Enter your password: ")
+            args.password = StdInOutWrapper.StdInOutWrapper.getFromInput("> Enter your password: ")
             if args.auth:
-                print "Set option --auth. Saving login and password to config file. Now you can skip entering login and password."
+                StdInOutWrapper.StdInOutWrapper.output("> Set option --auth. Saving login and password to config file. Now you can skip entering login and password.")
                 config.writeLoginPassword(args.login, args.password)
             
 
@@ -54,11 +52,4 @@ for cmd in Command.Command.actions:
         jira_client = JiraClient.JiraClient("http://sandbox.onjira.com", args.login, args.password)
         Command.Command.actions[cmd].perform_action(jira_client, cmd, args)
         break;
-
-
-#Debug call of one method without selection of action and without checking of login and password that was passed to JiraCli in line upper
-#jira_client.getProjects()
-
-
-#jira_client.getIssue(args.issue_name)
 
