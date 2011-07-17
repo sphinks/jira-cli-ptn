@@ -34,9 +34,15 @@ class ConfigFile():
     
     def readLoginPassword(self):
         self.__readConfigFile()
-        result = {
+        try:
+            result = {
                   'login': self.__getFromConfig('Main', 'Login'),
                   'password': self.__getFromConfig('Main', 'Password'),
+                  }
+        except ConfigParser.NoSectionError:
+            result = {
+                  'login': "",
+                  'password': "",
                   }
         return result
     
