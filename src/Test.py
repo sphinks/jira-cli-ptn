@@ -1,4 +1,4 @@
-import Command, JiraClient, ConfigFile, StdInOutWrapper
+import Command, JiraClient, ConfigFile, StdInOutWrapper, sys
 
        
 
@@ -7,6 +7,11 @@ import Command, JiraClient, ConfigFile, StdInOutWrapper
 #args = Command.Command.parser.parse_args('projects -a'.split())
 #args = Command.Command.parser.parse_args('--login sphinks --password 654321 --auth issue TST-1 -w'.split())
 args = Command.Command.parser.parse_args('issue TST-1 -w'.split())
+'''
+In this case use part of list, cause argv[0] is path to script,
+so all we need starts from argv[1]
+'''
+#args = Command.Command.parser.parse_args(sys.argv[1:])
 #Debug show of all args
 print args
 print '---------------------------------------'
